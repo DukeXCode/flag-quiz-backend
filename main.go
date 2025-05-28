@@ -75,7 +75,7 @@ func routing(r *gin.RouterGroup, db *sql.DB) {
 		}
 		defer rows.Close()
 
-		var answer_ids []int
+		answer_ids := []int{}
 		for rows.Next() {
 			var answer_id int
 			if err := rows.Scan(&answer_id); err != nil {
@@ -85,10 +85,6 @@ func routing(r *gin.RouterGroup, db *sql.DB) {
 			answer_ids = append(answer_ids, answer_id)
 		}
 
-		if len(answer_ids) < 3 {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Not enough answers recorded"})
-			return
-		}
 		c.JSON(http.StatusOK, answer_ids)
 	})
 }
