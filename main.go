@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -17,6 +18,7 @@ func main() {
 	defer db.Close()
 
 	r := gin.Default()
+	r.Use(cors.Default())
 	v1 := r.Group("/rest/v1")
 	routing(v1, db)
 	r.Run(":8080")
