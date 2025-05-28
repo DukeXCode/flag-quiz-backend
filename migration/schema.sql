@@ -1,0 +1,13 @@
+CREATE TABLE country (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  iso2 TEXT NOT NULL
+);
+
+CREATE TABLE answer (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  selected_country INTEGER NOT NULL,
+  correct_country INTEGER NOT NULL,
+  is_correct BOOLEAN NOT NULL
+);
+
