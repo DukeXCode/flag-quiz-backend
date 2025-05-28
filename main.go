@@ -49,15 +49,14 @@ func routing(r *gin.RouterGroup, db *sql.DB) {
 
 	r.POST("/answers", func(c *gin.Context) {
 		var json struct {
-			SelectedCountry int  `json:"selectedCountry" binding:"required"`
-			CorrectCountry  int  `json:"correctCountry" binding:"required"`
-			IsCorrect       bool `json:"isCorrect" binding:"required"`
+			SelectedCountry int   `json:"selectedCountry" binding:"required"`
+			CorrectCountry  int   `json:"correctCountry" binding:"required"`
+			IsCorrect       *bool `json:"isCorrect" binding:"required"`
 		}
 		if err := c.ShouldBindJSON(&json); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		log.Printf("%#v", json)
 		res, err := db.Exec("INSERT INTO answer (selected_country, correct_country, is_correct) VALUES (?, ?, ?)", json.SelectedCountry, json.CorrectCountry, json.IsCorrect)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
