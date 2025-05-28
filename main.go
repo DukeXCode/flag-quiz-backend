@@ -65,4 +65,30 @@ func routing(r *gin.RouterGroup, db *sql.DB) {
 		id, _ := res.LastInsertId()
 		c.JSON(http.StatusCreated, gin.H{"id": id, "selectedCountry": json.SelectedCountry, "correctCountry": json.CorrectCountry, "isCorrect": json.IsCorrect})
 	})
+
+	r.GET("/answers/wrong/countries/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		rows, err := db.Query("SELECT selected_country FROM (SELECT selected_country, COUNT(id) as cnt FROM answer WHERE correct_country = ? AND is_correct = FALSE GROUP BY selected_country) ORDER BY cnt DESC LIMIT 3", id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		defer rows.Close()
+
+		var answer_ids []int
+		for rows.Next() {
+			var answer_id int
+			if err := rows.Scan(&answer_id); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			answer_ids = append(answer_ids, answer_id)
+		}
+
+		if len(answer_ids) < 3 {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Not enough answers recorded"})
+			return
+		}
+		c.JSON(http.StatusOK, answer_ids)
+	})
 }
