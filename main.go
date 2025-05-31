@@ -3,7 +3,9 @@ package main
 import (
 	"database/sql"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -68,23 +70,49 @@ func routing(r *gin.RouterGroup, db *sql.DB) {
 
 	r.GET("/answers/wrong/countries/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		rows, err := db.Query("SELECT selected_country FROM (SELECT selected_country, COUNT(id) as cnt FROM answer WHERE correct_country = ? AND is_correct = FALSE GROUP BY selected_country) ORDER BY cnt DESC LIMIT 3", id)
+		rows, err := db.Query("SELECT selected_country FROM answer WHERE correct_country = ? AND is_correct = FALSE", id)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		defer rows.Close()
 
-		answer_ids := []int{}
+		country_ids := []int{}
 		for rows.Next() {
 			var answer_id int
 			if err := rows.Scan(&answer_id); err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
-			answer_ids = append(answer_ids, answer_id)
+			country_ids = append(country_ids, answer_id)
 		}
 
-		c.JSON(http.StatusOK, answer_ids)
+		randomCountries := selectRandomCountries(country_ids)
+		c.JSON(http.StatusOK, randomCountries)
 	})
+}
+
+func selectRandomCountries(countries []int) []int {
+	rand.Seed(time.Now().UnixNano())
+	selectedItems := []int{}
+	usedIds := make(map[int]bool)
+	var numItemsToSelect int
+
+	if len(countries) < 3 {
+		numItemsToSelect = len(countries)
+	} else {
+		numItemsToSelect = 3
+	}
+
+	for len(selectedItems) < numItemsToSelect {
+		randomIndex := rand.Intn(len(countries))
+		selectedId := countries[randomIndex]
+
+		if _, ok := usedIds[selectedId]; !ok {
+			selectedItems = append(selectedItems, selectedId)
+			usedIds[selectedId] = true
+		}
+	}
+
+	return selectedItems
 }
