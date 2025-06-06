@@ -1,4 +1,4 @@
-INSERT INTO country (iso2, name) VALUES
+INSERT OR IGNORE INTO country (iso2, name) VALUES
 ('ad', 'Andorra'),
 ('ae', 'United Arab Emirates'),
 ('af', 'Afghanistan'),
