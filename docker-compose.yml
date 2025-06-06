@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: flag-quiz-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - app_data:/app/data
+    restart: always
+volumes:
+  app_data:
+    driver: local
