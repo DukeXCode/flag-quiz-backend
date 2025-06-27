@@ -35,7 +35,7 @@ func routing(r *gin.RouterGroup, db *sql.DB) {
 		}
 		defer rows.Close()
 
-		var countries []map[string]interface{}
+		var countries []map[string]any
 		for rows.Next() {
 			var id int
 			var name string
@@ -93,19 +93,15 @@ func routing(r *gin.RouterGroup, db *sql.DB) {
 }
 
 func selectRandomCountries(countries []int) []int {
-	rand.Seed(time.Now().UnixNano())
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	selectedItems := []int{}
 	usedIds := make(map[int]bool)
 	var numItemsToSelect int
 
-	if len(countries) < 3 {
-		numItemsToSelect = len(countries)
-	} else {
-		numItemsToSelect = 3
-	}
+	numItemsToSelect = min(len(countries), 3)
 
 	for len(selectedItems) < numItemsToSelect {
-		randomIndex := rand.Intn(len(countries))
+		randomIndex := r.Intn(len(countries))
 		selectedId := countries[randomIndex]
 
 		if _, ok := usedIds[selectedId]; !ok {
