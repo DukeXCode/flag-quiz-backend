@@ -12,4 +12,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+sqlite3 /app/data/database.db < /app/migration/remove_non_sovereign.sql
+if [ $? -ne 0 ]; then
+    echo "Non-sovereign country removal failed!"
+    exit 1
+fi
+
 exec ./main
