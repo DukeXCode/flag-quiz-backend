@@ -15,5 +15,6 @@ COPY migration/ /app/migration/
 COPY --from=builder /app/main .
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+ENV DB_PATH=/app/data/database.db
 ENTRYPOINT ["entrypoint.sh"]
 
